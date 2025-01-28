@@ -1,5 +1,8 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -11,46 +14,60 @@ import swervelib.SwerveInputStream;
 
 /**
  * This class contains the robot's subsystems, commands, and button mappings.
- * It serves as the main robot configuration class.
+ * It serves as the main robot configuration class and manages:
+ * - Controller setup and bindings
+ * - Subsystem initialization
+ * - Default commands
+ * - Autonomous selection
  */
 public class RobotContainer {
-    // Controls
+    // Controller configuration
     private final CommandXboxController driver = new CommandXboxController(0);
 
-    // Subsystems
+    // Subsystem instances
     private final Swerve swerveDrive = Swerve.getInstance();
 
-    // Streams
-    private final SwerveInputStream driveDirectAngle = SwerveInputStream.of(swerveDrive.getSwerveDrive(), driver::getLeftY, driver::getLeftX)
+    // Drive control configuration
+    private final SwerveInputStream driveDirectAngle = SwerveInputStream.of(swerveDrive.getSwerveDrive(),
+            driver::getLeftY,
+            driver::getLeftX)
             .cubeTranslationControllerAxis(true)
             .scaleTranslation(0.5)
+            .cubeRotationControllerAxis(true)
             .withControllerHeadingAxis(driver::getRightX, driver::getRightY)
             .cubeRotationControllerAxis(true)
-            // .scaleRotation(0.5)
             .deadband(OIConstants.DRIVER_DEADBAND)
             .allianceRelativeControl(true)
             .headingWhile(true);
 
     /**
-     * Creates the robot container and configures button bindings.
-     * Initializes all enabled subsystems and their default commands.
+     * Creates the robot container and configures all robot systems.
      */
     public RobotContainer() {
         DriverStation.silenceJoystickConnectionWarning(true);
         driver.setRumble(RumbleType.kBothRumble, 0.0);
-
+        
         configureBindings();
     }
 
     /**
-     * Configures button bindings for all controllers.
+     * Configures button bindings and default commands.
+     * - Left stick: Translation control
+     * - Right stick: Rotation control
+     * - X button: Lock wheels
+     * - Start button: Reset odometry
      */
     private void configureBindings() {
+        // Set default drive command
         Command driveFieldOrientedDirectAngle = swerveDrive.driveFieldOriented(driveDirectAngle);
         swerveDrive.setDefaultCommand(driveFieldOrientedDirectAngle);
 
+        // Configure button bindings
         driver.x().whileTrue(Commands.runOnce(swerveDrive::lockWheels, swerveDrive).repeatedly());
         driver.start().onTrue(Commands.runOnce(swerveDrive::resetOdometry, swerveDrive));
+        driver.back().whileTrue(
+                swerveDrive.driveToPose(
+                        new Pose2d(new Translation2d(0, 0), Rotation2d.fromDegrees(0))));
     }
 
     /**
