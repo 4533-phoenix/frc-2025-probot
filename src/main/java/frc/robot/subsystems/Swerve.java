@@ -52,7 +52,7 @@ public class Swerve extends SubsystemBase {
             swerveDrive = new SwerveParser(new File(Filesystem.getDeployDirectory(), "swerve"))
                     .createSwerveDrive(
                             RobotConstants.MAX_SPEED,
-                            new Pose2d(new Translation2d(Meter.of(8.774 ), Meter.of(4.026)),
+                            new Pose2d(new Translation2d(Meter.of(8.774), Meter.of(4.026)),
                                     Rotation2d.fromDegrees(0)));
         } catch (Exception e) {
             throw new RuntimeException("Failed to create swerve drive", e);

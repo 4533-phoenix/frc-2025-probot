@@ -29,12 +29,12 @@ public class RobotContainer {
 
     // Drive control configuration
     private final SwerveInputStream driveDirectAngle = SwerveInputStream.of(swerveDrive.getSwerveDrive(),
-            driver::getLeftY,
-            driver::getLeftX)
+            () -> driver.getLeftY() * -1,
+            () -> driver.getLeftX() * -1)
             .cubeTranslationControllerAxis(true)
             .scaleTranslation(0.5)
             .cubeRotationControllerAxis(true)
-            .withControllerHeadingAxis(driver::getRightX, driver::getRightY)
+            .withControllerHeadingAxis(() -> driver.getRightX() * -1, () -> driver.getRightY() * -1)
             .cubeRotationControllerAxis(true)
             .deadband(OIConstants.DRIVER_DEADBAND)
             .allianceRelativeControl(true)
