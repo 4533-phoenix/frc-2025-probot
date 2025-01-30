@@ -100,7 +100,8 @@ public class Swerve extends SubsystemBase {
      * Resets the robot's odometry to the origin (0,0,0).
      */
     public void resetOdometry() {
-        swerveDrive.resetOdometry(new Pose2d());
+        swerveDrive.resetOdometry(new Pose2d(new Translation2d(Meter.of(8.774), Meter.of(4.026)),
+                Rotation2d.fromDegrees(0)));
     }
 
     /**
