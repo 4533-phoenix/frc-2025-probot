@@ -30,6 +30,11 @@ public final class Constants {
       new CameraConfig("test", new Transform3d(0, 0, 0.1524, new Rotation3d())),
     };
   }
+  public static final class SubsystemConfig {
+    public static final CameraConfig[] cameraConfigs = {
+      new CameraConfig("test", new Transform3d(0, 0, 0.1524, new Rotation3d())),
+    };
+  }
 
   /**
    * Constants for operator interface (OI) configuration.
