@@ -21,6 +21,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveParser;
@@ -226,5 +227,145 @@ public class Swerve extends SubsystemBase {
                 constraints,
                 edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
         );
+    }
+
+    /**
+     * Finds the closest point from an array of positions to the robot's current
+     * position.
+     * Uses squared distance for optimization to avoid expensive square root
+     * operations.
+     * 
+     * @param points Array of Pose2d positions to check
+     * @return The closest Pose2d from the array, or null if the array is empty
+     */
+    public Pose2d getClosestPoint(Pose2d[] points) {
+        if (points == null || points.length == 0) {
+            return null;
+        }
+
+        Pose2d currentPose = getPose();
+        double minDistSq = Double.MAX_VALUE;
+        Pose2d closest = null;
+
+        for (Pose2d point : points) {
+            // Calculate squared distance to avoid square root operation
+            double dx = currentPose.getX() - point.getX();
+            double dy = currentPose.getY() - point.getY();
+            double distSq = dx * dx + dy * dy;
+
+            if (distSq < minDistSq) {
+                minDistSq = distSq;
+                closest = point;
+            }
+        }
+
+        return closest;
+    }
+
+    /**
+     * Finds the closest point from an array of field POIs to the robot's current
+     * position.
+     * Takes alliance into account and optimizes calculations for frequent calls.
+     * 
+     * @param points Array of POI objects to check
+     * @return The Pose2d of the closest POI, or null if the array is empty
+     */
+    public Pose2d getClosestPOI(FieldConstants.POI[] points) {
+        if (points == null || points.length == 0) {
+            return null;
+        }
+
+        var alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
+        Pose2d currentPose = getPose();
+        double minDistSq = Double.MAX_VALUE;
+        int closestIndex = -1;
+
+        // Cache current position for optimization
+        final double robotX = currentPose.getX();
+        final double robotY = currentPose.getY();
+
+        for (int i = 0; i < points.length; i++) {
+            Pose2d pointPose = points[i].get(alliance);
+
+            // Calculate squared distance to avoid square root operation
+            double dx = robotX - pointPose.getX();
+            double dy = robotY - pointPose.getY();
+            double distSq = dx * dx + dy * dy;
+
+            if (distSq < minDistSq) {
+                minDistSq = distSq;
+                closestIndex = i;
+            }
+        }
+
+        return closestIndex >= 0 ? points[closestIndex].get(alliance) : null;
+    }
+
+    /**
+     * Finds the closest POI with a specific tag to the robot's current position.
+     * Highly optimized for frequent calls in control loops.
+     * 
+     * @param points Array of POI objects to check
+     * @param tag    The tag to filter by, or null to check all POIs
+     * @return The Pose2d of the closest matching POI, or null if none found
+     */
+    public Pose2d getClosestPOIByTag(FieldConstants.POI[] points, String tag) {
+        if (points == null || points.length == 0) {
+            return null;
+        }
+
+        var alliance = DriverStation.getAlliance().orElse(DriverStation.Alliance.Blue);
+        Pose2d currentPose = getPose();
+        double minDistSq = Double.MAX_VALUE;
+        int closestIndex = -1;
+
+        // Cache current position for optimization
+        final double robotX = currentPose.getX();
+        final double robotY = currentPose.getY();
+
+        for (int i = 0; i < points.length; i++) {
+            // Skip POIs that don't match the requested tag
+            if (tag != null && !points[i].getTag().equals(tag)) {
+                continue;
+            }
+
+            Pose2d pointPose = points[i].get(alliance);
+
+            // Calculate squared distance to avoid square root operation
+            double dx = robotX - pointPose.getX();
+            double dy = robotY - pointPose.getY();
+            double distSq = dx * dx + dy * dy;
+
+            if (distSq < minDistSq) {
+                minDistSq = distSq;
+                closestIndex = i;
+            }
+        }
+
+        return closestIndex >= 0 ? points[closestIndex].get(alliance) : null;
+    }
+
+    /**
+     * Creates a supplier that returns a Rotation2d pointing toward the closest POI
+     * with a specific tag.
+     * 
+     * @param points Array of POIs to target
+     * @param tag    The tag to filter by, or null to consider all POIs
+     * @return A supplier that provides the rotation toward the closest matching POI
+     *         when called
+     */
+    public Supplier<Rotation2d> createPointToClosestSupplier(FieldConstants.POI[] points, String tag) {
+        return () -> {
+            Pose2d closestPose = getClosestPOIByTag(points, tag);
+            if (closestPose == null) {
+                return new Rotation2d(); // Default to 0 if no points available
+            }
+            return closestPose.getRotation();
+        };
+    }
+
+    // For backward compatibility
+    public Supplier<Rotation2d> createPointToClosestSupplier(FieldConstants.POI[] points) {
+        return createPointToClosestSupplier(points, null);
     }
 }
