@@ -7,6 +7,7 @@ import edu.wpi.first.networktables.DoubleArraySubscriber;
 import edu.wpi.first.networktables.DoubleArrayTopic;
 import edu.wpi.first.networktables.DoubleSubscriber;
 import edu.wpi.first.networktables.DoubleTopic;
+import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -27,10 +28,12 @@ public final class Apriltag extends SubsystemBase {
         private Camera(String name) {
             this.name = name;
             NetworkTableInstance nt = NetworkTableInstance.getDefault();
-            DoubleArrayTopic translation = nt.getDoubleArrayTopic("/chalkydri/robot_pose/" + name + "/translation");
-            DoubleArrayTopic rotation = nt.getDoubleArrayTopic("/chalkydri/robot_pose/" + name + "/rotation");
-            BooleanTopic tagDetected = nt.getBooleanTopic("/chalkydri/robot_pose/" + name + "/tag_detected");
-            DoubleTopic delay = nt.getDoubleTopic("/chalkydri/robot_pose/" + name + "/delay");
+
+            NetworkTable table = nt.getTable("/chalkydri/robot_pose/" + name);
+            DoubleArrayTopic translation = table.getDoubleArrayTopic("translation");
+            DoubleArrayTopic rotation = table.getDoubleArrayTopic("rotation");
+            BooleanTopic tagDetected = table.getBooleanTopic("tag_detected");
+            DoubleTopic delay = table.getDoubleTopic("delay");
 
             translationSub = translation.subscribe(null);
             rotationSub = rotation.subscribe(null);
