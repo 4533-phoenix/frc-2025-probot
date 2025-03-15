@@ -11,11 +11,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OIConstants;
-<<<<<<< HEAD
 import frc.robot.subsystems.Apriltag;
-=======
 import frc.robot.helpers.CustomSwerveInput;
->>>>>>> origin/feat/chalkydri
 import frc.robot.subsystems.Swerve;
 
 /**
