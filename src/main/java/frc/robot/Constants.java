@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -23,9 +25,13 @@ public final class Constants {
     public static final double MAX_SPEED = 15.0;
   }
 
-  /**
-   * Remove SubsystemConfig class since it's no longer needed
-   */
+  public record CameraConfig(String name, Transform3d camToRobot) {}
+  
+  public static final class SubsystemConfig {
+    public static final CameraConfig[] cameraConfigs = {
+      new CameraConfig("test", new Transform3d(0, 0, 0.1524, new Rotation3d())),
+    };
+  }
 
   /**
    * Constants for operator interface (OI) configuration.

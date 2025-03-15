@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OIConstants;
+import frc.robot.subsystems.Apriltag;
 import frc.robot.helpers.CustomSwerveInput;
 import frc.robot.subsystems.Swerve;
 
@@ -28,6 +29,7 @@ public class RobotContainer {
 
     // Subsystem instances
     private final Swerve swerveDrive = Swerve.getInstance();
+    private final Apriltag apriltag = Apriltag.getInstance();
 
     // Drive control configuration
     private final CustomSwerveInput swerveInputStream = CustomSwerveInput.of(swerveDrive.getSwerveDrive(),
