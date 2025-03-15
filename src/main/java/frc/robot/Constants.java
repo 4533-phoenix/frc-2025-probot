@@ -1,5 +1,8 @@
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Transform3d;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide
  * numerical or boolean
@@ -19,9 +22,11 @@ public final class Constants {
     public static final double MAX_SPEED = 15.0;
   }
 
-  /**
-   * Remove SubsystemConfig class since it's no longer needed
-   */
+  public static final class SubsystemConfig {
+    public static final CameraConfig[] cameraConfigs = {
+      new CameraConfig("test", new Transform3d(0, 0, 0.1524, new Rotation3d())),
+    };
+  }
 
   /**
    * Constants for operator interface (OI) configuration.
